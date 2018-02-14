@@ -7,17 +7,17 @@ import (
     "github.com/gorilla/mux"
     "fmt"
     "github.com/mitsuse/pushbullet-go"
-	  "github.com/mitsuse/pushbullet-go/requests"
+	"github.com/mitsuse/pushbullet-go/requests"
     "os"
 )
 
+var token = os.Getenv("PB_TOKEN")
 
 type res struct {
   Message string
 }
 
 func Alert(w http.ResponseWriter, r *http.Request) {
-  token := "PUSHBULLET_TOKEN"
 
   fmt.Println("Alert!!")
   decoder := json.NewDecoder(r.Body)
@@ -26,7 +26,7 @@ func Alert(w http.ResponseWriter, r *http.Request) {
 
   if err != nil {
 		panic(err)
-	}
+  }
 
   pb := pushbullet.New(token)
 	// Create a push. The following codes create a note, which is one of push types.
@@ -45,7 +45,11 @@ func Alert(w http.ResponseWriter, r *http.Request) {
 
 // our main function
 func main() {
+  if token == "" {
+		panic("PB_TOKEN env is empty!")
+  }
+
     router := mux.NewRouter()
     router.HandleFunc("/alert", Alert).Methods("POST")
-    log.Fatal(http.ListenAndServe(":8000", router))
+    log.Fatal(http.ListenAndServe(":8008", router))
 }
